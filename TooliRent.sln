@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TooliRent.DAL", "TooliRent.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TooliRent.Models", "TooliRent.Models\TooliRent.Models.csproj", "{B9B578A3-D087-45AF-9D2F-9D94FD3E24A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TooliRent.DataAccess", "TooliRent.DataAccess\TooliRent.DataAccess.csproj", "{6FADC002-16A3-4431-B25B-9E28F07991C0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{B9B578A3-D087-45AF-9D2F-9D94FD3E24A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9B578A3-D087-45AF-9D2F-9D94FD3E24A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9B578A3-D087-45AF-9D2F-9D94FD3E24A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6FADC002-16A3-4431-B25B-9E28F07991C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6FADC002-16A3-4431-B25B-9E28F07991C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6FADC002-16A3-4431-B25B-9E28F07991C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6FADC002-16A3-4431-B25B-9E28F07991C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
