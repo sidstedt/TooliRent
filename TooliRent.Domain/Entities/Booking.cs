@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 using TooliRent.Domain.Enums;
 
 namespace TooliRent.Domain.Entities
@@ -15,7 +10,7 @@ namespace TooliRent.Domain.Entities
         [Required]
         public Guid UserId { get; set; }
 
-        public User User { get; set; } = null!;
+        public ApplicationUser User { get; set; } = default!;
 
         [Required]
         public DateTime StartDate { get; set; }
