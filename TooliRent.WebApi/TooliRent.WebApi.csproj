@@ -14,4 +14,9 @@
     <Folder Include="Controllers\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TooliRent.Application\TooliRent.Application.csproj" />
+    <ProjectReference Include="..\TooliRent.Infrastructure\TooliRent.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
