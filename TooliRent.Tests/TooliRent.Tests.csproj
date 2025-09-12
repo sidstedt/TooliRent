@@ -23,6 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TooliRent.Application\TooliRent.Application.csproj" />
+    <ProjectReference Include="..\TooliRent.Domain\TooliRent.Domain.csproj" />
+    <ProjectReference Include="..\TooliRent.Infrastructure\TooliRent.Infrastructure.csproj" />
+    <ProjectReference Include="..\TooliRent.WebApi\TooliRent.WebApi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
