@@ -1,6 +1,9 @@
-
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Text;
 using TooliRent.Domain.Entities;
 using TooliRent.Infrastructure.Persistence;
 
@@ -20,8 +23,34 @@ namespace TooliRent.WebApi
             builder.Services.AddControllers();
             
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(opt =>
+            {
+                opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Use your token"
+                });
+                opt.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
 
+            // Microsoft Identity setup
             builder.Services.AddIdentityCore<ApplicationUser>(opt =>
                 {
                     opt.User.RequireUniqueEmail = true;
@@ -31,7 +60,26 @@ namespace TooliRent.WebApi
                 .AddEntityFrameworkStores<TooliRentDbContext>()
                 .AddDefaultTokenProviders();
 
-            builder.Services.AddAuthentication();
+            // JWT setup
+            var jwt = builder.Configuration.GetSection("Jwt");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+
+            builder.Services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(o =>
+                {
+                    o.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = jwt["Issuer"],
+                        ValidAudience = jwt["Audience"],
+                        IssuerSigningKey = key,
+                        ClockSkew = TimeSpan.FromMinutes(1)
+                    };
+                });
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
@@ -45,8 +93,8 @@ namespace TooliRent.WebApi
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
