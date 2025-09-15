@@ -1,4 +1,9 @@
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TooliRent.Domain.Entities;
+using TooliRent.Infrastructure.Persistence;
+
 namespace TooliRent.WebApi
 {
     public class Program
@@ -8,11 +13,26 @@ namespace TooliRent.WebApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddDbContext<TooliRentDbContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddIdentityCore<ApplicationUser>(opt =>
+                {
+                    opt.User.RequireUniqueEmail = true;
+                    opt.Password.RequiredLength = 6;
+                })
+                .AddRoles<IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<TooliRentDbContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
