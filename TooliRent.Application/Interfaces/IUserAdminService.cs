@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace TooliRent.Application.Interfaces
 {
-    internal interface IUserAdminService
+    public interface IUserAdminService
     {
+        Task<bool> SetUserStatusAsync(Guid userId, bool isActive, CancellationToken ct);
     }
 }

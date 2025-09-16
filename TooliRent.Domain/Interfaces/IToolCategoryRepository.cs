@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TooliRent.Domain.Entities;
 
 namespace TooliRent.Domain.Interfaces
 {
-    internal interface IToolCategoryRepository
+    public interface IToolCategoryRepository
     {
+        // Läs
+        Task<ToolCategory?> GetByIdAsync(int id, CancellationToken ct);
+        Task<List<ToolCategory>> GetAllAsync(CancellationToken ct);
+
+        // Skapa / Uppdatera / Ta bort
+        Task<bool> AddAsync(ToolCategory category, CancellationToken ct);
+        Task<bool> UpdateAsync(ToolCategory category, CancellationToken ct);
+        Task<bool> DeleteAsync(int id, CancellationToken ct);
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TooliRent.Application.Interfaces
 {
-    internal interface IAuthService
+    public interface IAuthService
     {
     }
 }

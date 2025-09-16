@@ -1,8 +1,13 @@
-﻿using TooliRent.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TooliRent.Domain.Entities;
 
-namespace TooliRent.Domain.Interfaces
+namespace TooliRent.Application.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserService
     {
         // Läs
         Task<ApplicationUser?> GetByIdAsync(Guid id, CancellationToken ct);
@@ -14,8 +19,5 @@ namespace TooliRent.Domain.Interfaces
         // Roller
         Task<bool> AddToRoleAsync(ApplicationUser user, string role, CancellationToken ct);
         Task<IReadOnlyCollection<string>> GetRolesAsync(ApplicationUser user, CancellationToken ct);
-
-        // Admin funktioner
-        Task<bool> SetStatusAsync(Guid userId, bool isActive, CancellationToken ct);
     }
 }
