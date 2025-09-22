@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using TooliRent.Domain.Entities;
 using TooliRent.Infrastructure.Persistence;
+using TooliRent.WebApi.Auth;
 
 namespace TooliRent.WebApi
 {
@@ -81,6 +82,8 @@ namespace TooliRent.WebApi
                     };
                 });
             builder.Services.AddAuthorization();
+
+            builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
             var app = builder.Build();
 

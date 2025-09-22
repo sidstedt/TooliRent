@@ -12,7 +12,7 @@ using TooliRent.Infrastructure.Persistence;
 namespace TooliRent.Infrastructure.Migrations
 {
     [DbContext(typeof(TooliRentDbContext))]
-    [Migration("20250914111844_init")]
+    [Migration("20250919102741_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -273,7 +273,7 @@ namespace TooliRent.Infrastructure.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "CONC-STAMP-ALICE",
-                            CreatedAt = new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9150),
+                            CreatedAt = new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6376),
                             DisplayName = "Alice Andersson",
                             Email = "alice@TooliRent.com",
                             EmailConfirmed = true,
@@ -283,7 +283,7 @@ namespace TooliRent.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ALICE@TOOLIRENT.COM",
                             NormalizedUserName = "ALICE@TOOLIRENT.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGy2QjtfakeHashMemberReplaceLaterwXpt7ER5n7P7Jw9s2yQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDJmR1AJzv/AZWcfvpYJq+7Yh28SL9TAoa3SJyjPQiP9qj9KSML4lPMo4KJM5FVbAQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "SEC-STAMP-ALICE",
                             TwoFactorEnabled = false,
@@ -294,7 +294,7 @@ namespace TooliRent.Infrastructure.Migrations
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "CONC-STAMP-ADMIN",
-                            CreatedAt = new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9212),
+                            CreatedAt = new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6456),
                             DisplayName = "Admin User",
                             Email = "admin@TooliRent.com",
                             EmailConfirmed = true,
@@ -304,7 +304,7 @@ namespace TooliRent.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@TOOLIRENT.COM",
                             NormalizedUserName = "ADMIN@TOOLIRENT.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIo1QjtfakeHashAdminReplaceLaterbXpt7ER5n7P7Jw9s2yQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEE88eyDi+I7LBIsVSeKbK/a/N1OWOlWN30bu1y8YHvQwKA3cAhFR0bxRZi25aBFrbQ==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "SEC-STAMP-ADMIN",
                             TwoFactorEnabled = false,
@@ -380,6 +380,41 @@ namespace TooliRent.Infrastructure.Migrations
                     b.ToTable("BookingItems");
                 });
 
+            modelBuilder.Entity("TooliRent.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("JwtId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "ExpiresAt");
+
+                    b.ToTable("RefreshTokens");
+                });
+
             modelBuilder.Entity("TooliRent.Domain.Entities.Tool", b =>
                 {
                     b.Property<int>("Id")
@@ -428,7 +463,7 @@ namespace TooliRent.Infrastructure.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9113),
+                            CreatedAt = new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6331),
                             Description = "Borrmaskin med kabel",
                             Name = "Bosch Borrmaskin",
                             PricePerDay = 50m,
@@ -439,7 +474,7 @@ namespace TooliRent.Infrastructure.Migrations
                         {
                             Id = 2,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9122),
+                            CreatedAt = new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6339),
                             Description = "Borrmaskin med batteri",
                             Name = "Milwaukee Borrmaskin",
                             PricePerDay = 70m,
@@ -450,7 +485,7 @@ namespace TooliRent.Infrastructure.Migrations
                         {
                             Id = 3,
                             CategoryId = 2,
-                            CreatedAt = new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9123),
+                            CreatedAt = new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6342),
                             Description = "Kompakt skruvdragare",
                             Name = "Makita Skruvdragare",
                             PricePerDay = 60m,
@@ -461,7 +496,7 @@ namespace TooliRent.Infrastructure.Migrations
                         {
                             Id = 4,
                             CategoryId = 2,
-                            CreatedAt = new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9125),
+                            CreatedAt = new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6344),
                             Description = "Kraftfull skruvdragare",
                             Name = "DeWalt Skruvdragare",
                             PricePerDay = 80m,
@@ -472,7 +507,7 @@ namespace TooliRent.Infrastructure.Migrations
                         {
                             Id = 5,
                             CategoryId = 3,
-                            CreatedAt = new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9126),
+                            CreatedAt = new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6346),
                             Description = "Kvalitetssåg från Hultafors",
                             Name = "Hultafors Fogsvans",
                             PricePerDay = 5m,
@@ -608,6 +643,17 @@ namespace TooliRent.Infrastructure.Migrations
                     b.Navigation("Booking");
 
                     b.Navigation("Tool");
+                });
+
+            modelBuilder.Entity("TooliRent.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("TooliRent.Domain.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TooliRent.Domain.Entities.Tool", b =>

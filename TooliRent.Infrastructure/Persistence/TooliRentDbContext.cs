@@ -16,10 +16,22 @@ namespace TooliRent.Infrastructure.Persistence
         public DbSet<ToolCategory> ToolCategories => Set<ToolCategory>();
         public DbSet<Booking> Bookings => Set<Booking>();
         public DbSet<BookingItem> BookingItems => Set<BookingItem>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<RefreshToken>(et =>
+            {
+                et.HasKey(r => r.Id);
+                et.HasIndex(r => new { r.UserId, r.ExpiresAt });
+                et.Property(r => r.TokenHash).IsRequired();
+                et.HasOne(r => r.User)
+                    .WithMany()
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             modelBuilder.Entity<Tool>(entity =>
             {
@@ -152,8 +164,8 @@ namespace TooliRent.Infrastructure.Persistence
             var adminId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
             // Passwords are hashed versions of "Member123" and "Admin123"
-            const string AlicePasswordHash = "AQAAAAIAAYagAAAAEGy2QjtfakeHashMemberReplaceLaterwXpt7ER5n7P7Jw9s2yQ==";
-            const string AdminPasswordHash = "AQAAAAIAAYagAAAAEIo1QjtfakeHashAdminReplaceLaterbXpt7ER5n7P7Jw9s2yQ==";
+            const string AdminPasswordHash = "AQAAAAIAAYagAAAAEDJmR1AJzv/AZWcfvpYJq+7Yh28SL9TAoa3SJyjPQiP9qj9KSML4lPMo4KJM5FVbAQ==";
+            const string AlicePasswordHash = "AQAAAAIAAYagAAAAEE88eyDi+I7LBIsVSeKbK/a/N1OWOlWN30bu1y8YHvQwKA3cAhFR0bxRZi25aBFrbQ==";
 
             modelBuilder.Entity<ApplicationUser>().HasData(
                 new ApplicationUser
