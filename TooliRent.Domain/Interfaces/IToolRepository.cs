@@ -1,5 +1,5 @@
 ﻿using TooliRent.Domain.Entities;
-using TooliRent.Domain.Enums;
+using TooliRent.Domain.Queries;
 
 namespace TooliRent.Domain.Interfaces
 {
@@ -25,13 +25,4 @@ namespace TooliRent.Domain.Interfaces
         Task<bool> AdjustQuantityAsync(int toolId, int adjustment, CancellationToken ct);
         Task UpdateStatusAsync(int toolId, string status, CancellationToken ct);
     }
-
-    public sealed record ToolSearchCriteria
-        (
-            string? Name = null,
-            int? CategoryId = null,
-            ToolStatus? Status = null,
-            decimal? MinPrice = null,
-            decimal? MaxPrice = null
-        );
 }
