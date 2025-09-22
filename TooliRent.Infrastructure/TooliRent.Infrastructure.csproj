@@ -20,4 +20,8 @@
     <ProjectReference Include="..\TooliRent.Domain\TooliRent.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+
 </Project>

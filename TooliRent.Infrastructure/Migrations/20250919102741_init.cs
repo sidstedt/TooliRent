@@ -202,6 +202,30 @@ namespace TooliRent.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TokenHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    JwtId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UsedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RevokedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tools",
                 columns: table => new
                 {
@@ -270,8 +294,8 @@ namespace TooliRent.Infrastructure.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "DisplayName", "Email", "EmailConfirmed", "FirstName", "IsActive", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { new Guid("11111111-1111-1111-1111-111111111111"), 0, "CONC-STAMP-ALICE", new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9150), "Alice Andersson", "alice@TooliRent.com", true, "Alice", true, "Andersson", false, null, "ALICE@TOOLIRENT.COM", "ALICE@TOOLIRENT.COM", "AQAAAAIAAYagAAAAEGy2QjtfakeHashMemberReplaceLaterwXpt7ER5n7P7Jw9s2yQ==", null, false, "SEC-STAMP-ALICE", false, "alice@TooliRent.com" },
-                    { new Guid("22222222-2222-2222-2222-222222222222"), 0, "CONC-STAMP-ADMIN", new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9212), "Admin User", "admin@TooliRent.com", true, "Admin", true, "User", false, null, "ADMIN@TOOLIRENT.COM", "ADMIN@TOOLIRENT.COM", "AQAAAAIAAYagAAAAEIo1QjtfakeHashAdminReplaceLaterbXpt7ER5n7P7Jw9s2yQ==", null, false, "SEC-STAMP-ADMIN", false, "admin@TooliRent.com" }
+                    { new Guid("11111111-1111-1111-1111-111111111111"), 0, "CONC-STAMP-ALICE", new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6376), "Alice Andersson", "alice@TooliRent.com", true, "Alice", true, "Andersson", false, null, "ALICE@TOOLIRENT.COM", "ALICE@TOOLIRENT.COM", "AQAAAAIAAYagAAAAEDJmR1AJzv/AZWcfvpYJq+7Yh28SL9TAoa3SJyjPQiP9qj9KSML4lPMo4KJM5FVbAQ==", null, false, "SEC-STAMP-ALICE", false, "alice@TooliRent.com" },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), 0, "CONC-STAMP-ADMIN", new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6456), "Admin User", "admin@TooliRent.com", true, "Admin", true, "User", false, null, "ADMIN@TOOLIRENT.COM", "ADMIN@TOOLIRENT.COM", "AQAAAAIAAYagAAAAEE88eyDi+I7LBIsVSeKbK/a/N1OWOlWN30bu1y8YHvQwKA3cAhFR0bxRZi25aBFrbQ==", null, false, "SEC-STAMP-ADMIN", false, "admin@TooliRent.com" }
                 });
 
             migrationBuilder.InsertData(
@@ -298,11 +322,11 @@ namespace TooliRent.Infrastructure.Migrations
                 columns: new[] { "Id", "CategoryId", "CreatedAt", "Description", "Name", "PricePerDay", "QuantityAvailable", "Status" },
                 values: new object[,]
                 {
-                    { 1, 1, new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9113), "Borrmaskin med kabel", "Bosch Borrmaskin", 50m, 3, 0 },
-                    { 2, 1, new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9122), "Borrmaskin med batteri", "Milwaukee Borrmaskin", 70m, 2, 0 },
-                    { 3, 2, new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9123), "Kompakt skruvdragare", "Makita Skruvdragare", 60m, 4, 0 },
-                    { 4, 2, new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9125), "Kraftfull skruvdragare", "DeWalt Skruvdragare", 80m, 1, 0 },
-                    { 5, 3, new DateTime(2025, 9, 14, 11, 18, 44, 343, DateTimeKind.Utc).AddTicks(9126), "Kvalitetssåg från Hultafors", "Hultafors Fogsvans", 5m, 4, 0 }
+                    { 1, 1, new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6331), "Borrmaskin med kabel", "Bosch Borrmaskin", 50m, 3, 0 },
+                    { 2, 1, new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6339), "Borrmaskin med batteri", "Milwaukee Borrmaskin", 70m, 2, 0 },
+                    { 3, 2, new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6342), "Kompakt skruvdragare", "Makita Skruvdragare", 60m, 4, 0 },
+                    { 4, 2, new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6344), "Kraftfull skruvdragare", "DeWalt Skruvdragare", 80m, 1, 0 },
+                    { 5, 3, new DateTime(2025, 9, 19, 10, 27, 40, 543, DateTimeKind.Utc).AddTicks(6346), "Kvalitetssåg från Hultafors", "Hultafors Fogsvans", 5m, 4, 0 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -361,6 +385,11 @@ namespace TooliRent.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_UserId_ExpiresAt",
+                table: "RefreshTokens",
+                columns: new[] { "UserId", "ExpiresAt" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ToolCategories_Name",
                 table: "ToolCategories",
                 column: "Name",
@@ -392,6 +421,9 @@ namespace TooliRent.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "BookingItems");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
