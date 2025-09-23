@@ -23,5 +23,8 @@ namespace TooliRent.Application.Interfaces
         // Utlämning / återlämning
         Task<BookingItem?> GetItemAsync(int bookingItemId, CancellationToken ct);
         Task UpdateItemAsync(BookingItem item, CancellationToken ct);
+
+        // Försenade
+        Task<int> MarkOverdueAsync(DateTime nowUtc, CancellationToken ct);
     }
 }

@@ -7,6 +7,10 @@ using System.Text;
 using TooliRent.Domain.Entities;
 using TooliRent.Infrastructure.Persistence;
 using TooliRent.WebApi.Auth;
+using TooliRent.Application.Interfaces;
+using TooliRent.Application.Services;
+using TooliRent.Domain.Interfaces;
+using TooliRent.Infrastructure.Repositories;
 
 namespace TooliRent.WebApi
 {
@@ -84,6 +88,16 @@ namespace TooliRent.WebApi
             builder.Services.AddAuthorization();
 
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+            // DI: repositories and services
+            builder.Services.AddScoped<IToolRepository, ToolRepository>();
+            builder.Services.AddScoped<IToolService, ToolService>();
+            builder.Services.AddScoped<IToolCategoryRepository, ToolCategoryRepository>();
+            builder.Services.AddScoped<IToolCategoryService, ToolCategoryService>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 
             var app = builder.Build();
 
