@@ -25,6 +25,7 @@ namespace TooliRent.WebApi.Auth
             var claims = new List<Claim>
             {
                 new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new (ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new (JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
                 new (ClaimTypes.Name, user.UserName ?? user.Email ?? string.Empty)
             };

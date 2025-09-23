@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TooliRent.Application.DTOs;
 using TooliRent.Domain.Entities;
-using TooliRent.Domain.Enums;
 using TooliRent.Infrastructure.Persistence;
+using TooliRent.Domain.Enums;
 
 namespace TooliRent.WebApi.Controllers
 {
@@ -16,11 +16,54 @@ namespace TooliRent.WebApi.Controllers
     {
         private readonly TooliRentDbContext _db;
         private readonly UserManager<ApplicationUser> _users;
+        private readonly RoleManager<IdentityRole<Guid>> _roles;
 
-        public AdminController(TooliRentDbContext db, UserManager<ApplicationUser> users)
+        public AdminController(TooliRentDbContext db, UserManager<ApplicationUser> users, RoleManager<IdentityRole<Guid>> roles)
         {
             _db = db;
             _users = users;
+            _roles = roles;
+        }
+
+        // GET /api/admin/users
+        [HttpGet("users")]
+        public async Task<ActionResult<IEnumerable<AdminUserListUsersDto>>> GetUsers(CancellationToken ct)
+        {
+            var list = await _users.Users.AsNoTracking().OrderBy(u => u.Email).ToListAsync(ct);
+            var result = new List<AdminUserListUsersDto>(list.Count);
+            foreach (var u in list)
+            {
+                var roles = await _users.GetRolesAsync(u);
+                result.Add(new AdminUserListUsersDto
+                {
+                    Id = u.Id,
+                    Email = u.Email ?? string.Empty,
+                    DisplayName = u.DisplayName,
+                    IsActive = u.IsActive,
+                    CreatedAt = u.CreatedAt,
+                    Roles = roles.ToList()
+                });
+            }
+            return Ok(result);
+        }
+
+        // GET /api/admin/users/by-email?email=...
+        [HttpGet("users/by-email")]
+        public async Task<ActionResult<AdminUserListUsersDto>> GetUserByEmail([FromQuery] string email, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return BadRequest(new { message = "email is required" });
+            var u = await _users.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email, ct);
+            if (u is null) return NotFound();
+            var roles = await _users.GetRolesAsync(u);
+            return Ok(new AdminUserListUsersDto
+            {
+                Id = u.Id,
+                Email = u.Email ?? string.Empty,
+                DisplayName = u.DisplayName,
+                IsActive = u.IsActive,
+                CreatedAt = u.CreatedAt,
+                Roles = roles.ToList()
+            });
         }
 
         // POST /api/admin/users/{id}/activate

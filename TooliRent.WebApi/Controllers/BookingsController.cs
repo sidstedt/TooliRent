@@ -71,6 +71,7 @@ namespace TooliRent.WebApi.Controllers
 
         // POST /api/bookings
         [HttpPost]
+        [Authorize(Roles = "Member, Admin")]
         public async Task<IActionResult> Create([FromBody] CreateBookingDto dto, CancellationToken ct)
         {
             if (dto.StartDate.Date >= dto.EndDate.Date)
