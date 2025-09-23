@@ -12,6 +12,7 @@ namespace TooliRent.Application.Interfaces
         // CRUD
         Task<bool> AddAsync(ToolCategory category, CancellationToken ct);
         Task<List<ToolCategory>> GetAllAsync(CancellationToken ct);
+        Task<ToolCategory?> GetByIdAsync(int id, CancellationToken ct);
         Task<bool> UpdateAsync(ToolCategory category, CancellationToken ct);
         Task<bool> DeleteAsync(int id, CancellationToken ct);
     }

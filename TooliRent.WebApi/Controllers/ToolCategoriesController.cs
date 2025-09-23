@@ -1,25 +1,25 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TooliRent.Application.DTOs;
+using TooliRent.Application.Interfaces;
 using TooliRent.Domain.Entities;
-using TooliRent.Infrastructure.Persistence;
 
 namespace TooliRent.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")] // Category CRUD is an admin function per task
+    [Authorize(Roles = "Admin")]
     public class ToolCategoriesController : ControllerBase
     {
-        private readonly TooliRentDbContext _db;
-        public ToolCategoriesController(TooliRentDbContext db) => _db = db;
+        private readonly IToolCategoryService _service;
+        public ToolCategoriesController(IToolCategoryService service) => _service = service;
 
         // GET /api/toolcategories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ToolCategoryListItemDto>>> GetAll(CancellationToken ct)
         {
-            var items = await _db.ToolCategories.AsNoTracking()
+            var cats = await _service.GetAllAsync(ct);
+            var items = cats
                 .OrderBy(c => c.Name)
                 .Select(c => new ToolCategoryListItemDto
                 {
@@ -27,7 +27,7 @@ namespace TooliRent.WebApi.Controllers
                     Name = c.Name,
                     IsActive = c.IsActive
                 })
-                .ToListAsync(ct);
+                .ToList();
             return Ok(items);
         }
 
@@ -35,24 +35,23 @@ namespace TooliRent.WebApi.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ToolCategoryDetailDto>> GetById([FromRoute] int id, CancellationToken ct)
         {
-            var item = await _db.ToolCategories.AsNoTracking()
-                .Where(c => c.Id == id)
-                .Select(c => new ToolCategoryDetailDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    IsActive = c.IsActive
-                })
-                .FirstOrDefaultAsync(ct);
-            return item is null ? NotFound() : Ok(item);
+            var c = await _service.GetByIdAsync(id, ct);
+            if (c is null) return NotFound();
+            return Ok(new ToolCategoryDetailDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                IsActive = c.IsActive
+            });
         }
 
         // POST /api/toolcategories
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ToolCategoryCreateDto dto, CancellationToken ct)
         {
-            if (await _db.ToolCategories.AnyAsync(c => c.Name == dto.Name, ct))
+            var cats = await _service.GetAllAsync(ct);
+            if (cats.Any(c => string.Equals(c.Name, dto.Name, StringComparison.OrdinalIgnoreCase)))
                 return Conflict(new { message = "Category name must be unique." });
 
             var entity = new ToolCategory
@@ -61,8 +60,8 @@ namespace TooliRent.WebApi.Controllers
                 Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description!.Trim(),
                 IsActive = dto.IsActive
             };
-            _db.ToolCategories.Add(entity);
-            await _db.SaveChangesAsync(ct);
+            var ok = await _service.AddAsync(entity, ct);
+            if (!ok) return BadRequest(new { message = "Create failed" });
 
             return CreatedAtAction(nameof(GetById), new { id = entity.Id }, new ToolCategoryDetailDto
             {
@@ -77,17 +76,19 @@ namespace TooliRent.WebApi.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ToolCategoryUpdateDto dto, CancellationToken ct)
         {
-            var entity = await _db.ToolCategories.FindAsync(new object[] { id }, ct);
+            var entity = await _service.GetByIdAsync(id, ct);
             if (entity is null) return NotFound();
 
-            var exists = await _db.ToolCategories.AnyAsync(c => c.Id != id && c.Name == dto.Name, ct);
-            if (exists) return Conflict(new { message = "Category name must be unique." });
+            var cats = await _service.GetAllAsync(ct);
+            if (cats.Any(c => c.Id != id && string.Equals(c.Name, dto.Name, StringComparison.OrdinalIgnoreCase)))
+                return Conflict(new { message = "Category name must be unique." });
 
             entity.Name = dto.Name.Trim();
             entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description!.Trim();
             entity.IsActive = dto.IsActive;
 
-            await _db.SaveChangesAsync(ct);
+            var ok = await _service.UpdateAsync(entity, ct);
+            if (!ok) return BadRequest(new { message = "Update failed" });
             return NoContent();
         }
 
@@ -95,14 +96,14 @@ namespace TooliRent.WebApi.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken ct)
         {
-            var entity = await _db.ToolCategories.Include(c => c.Tools).FirstOrDefaultAsync(c => c.Id == id, ct);
+            var entity = await _service.GetByIdAsync(id, ct);
             if (entity is null) return NotFound();
 
             if (entity.Tools.Any())
                 return BadRequest(new { message = "Cannot delete category with tools." });
 
-            _db.ToolCategories.Remove(entity);
-            await _db.SaveChangesAsync(ct);
+            var ok = await _service.DeleteAsync(id, ct);
+            if (!ok) return BadRequest(new { message = "Delete failed" });
             return NoContent();
         }
     }
