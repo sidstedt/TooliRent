@@ -94,7 +94,8 @@ namespace TooliRent.WebApi
             builder.Services.AddScoped<IToolService, ToolService>();
             builder.Services.AddScoped<IToolCategoryRepository, ToolCategoryRepository>();
             builder.Services.AddScoped<IToolCategoryService, ToolCategoryService>();
-
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
 
             var app = builder.Build();
 
