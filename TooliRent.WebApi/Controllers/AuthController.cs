@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using System.Text;
 using TooliRent.Application.DTOs;
 using TooliRent.Domain.Entities;
+using TooliRent.Infrastructure.Persistence;
 using TooliRent.WebApi.Auth;
 
 namespace TooliRent.WebApi.Controllers
@@ -16,13 +18,13 @@ namespace TooliRent.WebApi.Controllers
         private readonly UserManager<ApplicationUser> _user;
         private readonly IJwtTokenService _jwtToken;
         private readonly RoleManager<IdentityRole<Guid>> _role;
-        private readonly TooliRent.Infrastructure.Persistence.TooliRentDbContext _db;
+        private readonly TooliRentDbContext _db;
 
         public AuthController(
             UserManager<ApplicationUser> user,
             RoleManager<IdentityRole<Guid>> role,
             IJwtTokenService jwtToken,
-            TooliRent.Infrastructure.Persistence.TooliRentDbContext db)
+            TooliRentDbContext db)
         {
             _user = user;
             _role = role;
@@ -39,8 +41,8 @@ namespace TooliRent.WebApi.Controllers
 
         private static string Hash(string input)
         {
-            using var sha = System.Security.Cryptography.SHA256.Create();
-            var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+            using var sha = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(input);
             var hash = sha.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
@@ -53,6 +55,10 @@ namespace TooliRent.WebApi.Controllers
             if (user is null || !await _user.CheckPasswordAsync(user, dto.Password))
             {
                 return Unauthorized(new { message = "Invalid email or password." });
+            }
+            if (user.IsActive is false)
+            {
+                return Unauthorized(new { message = "User account is inactive." });
             }
 
             var roles = await _user.GetRolesAsync(user);
