@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TooliRent.Domain.Entities;
+﻿using TooliRent.Application.DTOs;
 
 namespace TooliRent.Application.Interfaces
 {
     public interface IToolCategoryService
     {
-        // CRUD
-        Task<bool> AddAsync(ToolCategory category, CancellationToken ct);
-        Task<List<ToolCategory>> GetAllAsync(CancellationToken ct);
-        Task<ToolCategory?> GetByIdAsync(int id, CancellationToken ct);
-        Task<bool> UpdateAsync(ToolCategory category, CancellationToken ct);
-        Task<bool> DeleteAsync(int id, CancellationToken ct);
+        // DTO-oriented operations (controller-friendly)
+        Task<List<ToolCategoryListItemDto>> GetAllListAsync(CancellationToken ct);
+        Task<ToolCategoryDetailDto?> GetDetailAsync(int id, CancellationToken ct);
+        Task<ToolCategoryDetailDto> CreateAsync(ToolCategoryCreateDto dto, CancellationToken ct);
+        Task<bool> UpdateAsync(int id, ToolCategoryUpdateDto dto, CancellationToken ct);
+        Task<bool> DeleteCategoryAsync(int id, CancellationToken ct);
     }
 }
