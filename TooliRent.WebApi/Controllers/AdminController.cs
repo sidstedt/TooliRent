@@ -1,11 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TooliRent.Application.DTOs;
-using TooliRent.Domain.Entities;
-using TooliRent.Infrastructure.Persistence;
-using TooliRent.Domain.Enums;
+using TooliRent.Application.Interfaces;
 
 namespace TooliRent.WebApi.Controllers
 {
@@ -14,36 +10,17 @@ namespace TooliRent.WebApi.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
-        private readonly TooliRentDbContext _db;
-        private readonly UserManager<ApplicationUser> _users;
-        private readonly RoleManager<IdentityRole<Guid>> _roles;
-
-        public AdminController(TooliRentDbContext db, UserManager<ApplicationUser> users, RoleManager<IdentityRole<Guid>> roles)
+        private readonly IAdminService _admin;
+        public AdminController(IAdminService admin)
         {
-            _db = db;
-            _users = users;
-            _roles = roles;
+            _admin = admin;
         }
 
         // GET /api/admin/users
         [HttpGet("users")]
         public async Task<ActionResult<IEnumerable<AdminUserListUsersDto>>> GetUsers(CancellationToken ct)
         {
-            var list = await _users.Users.AsNoTracking().OrderBy(u => u.Email).ToListAsync(ct);
-            var result = new List<AdminUserListUsersDto>(list.Count);
-            foreach (var u in list)
-            {
-                var roles = await _users.GetRolesAsync(u);
-                result.Add(new AdminUserListUsersDto
-                {
-                    Id = u.Id,
-                    Email = u.Email ?? string.Empty,
-                    DisplayName = u.DisplayName,
-                    IsActive = u.IsActive,
-                    CreatedAt = u.CreatedAt,
-                    Roles = roles.ToList()
-                });
-            }
+            var result = await _admin.GetUsersAsync(ct);
             return Ok(result);
         }
 
@@ -51,30 +28,17 @@ namespace TooliRent.WebApi.Controllers
         [HttpGet("users/by-email")]
         public async Task<ActionResult<AdminUserListUsersDto>> GetUserByEmail([FromQuery] string email, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(email)) return BadRequest(new { message = "email is required" });
-            var u = await _users.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email, ct);
-            if (u is null) return NotFound();
-            var roles = await _users.GetRolesAsync(u);
-            return Ok(new AdminUserListUsersDto
-            {
-                Id = u.Id,
-                Email = u.Email ?? string.Empty,
-                DisplayName = u.DisplayName,
-                IsActive = u.IsActive,
-                CreatedAt = u.CreatedAt,
-                Roles = roles.ToList()
-            });
+            var res = await _admin.GetUserByEmailAsync(email, ct);
+            if (res is null) return NotFound();
+            return Ok(res);
         }
 
         // POST /api/admin/users/{id}/activate
         [HttpPost("users/{id:guid}/activate")]
         public async Task<IActionResult> ActivateUser([FromRoute] Guid id, CancellationToken ct)
         {
-            var user = await _users.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
-            if (user is null) return NotFound();
-
-            user.IsActive = true;
-            await _users.UpdateAsync(user);
+            var ok = await _admin.SetUserActiveAsync(id, true, ct);
+            if (!ok) return NotFound();
             return NoContent();
         }
 
@@ -82,67 +46,25 @@ namespace TooliRent.WebApi.Controllers
         [HttpPost("users/{id:guid}/deactivate")]
         public async Task<IActionResult> DeactivateUser([FromRoute] Guid id, CancellationToken ct)
         {
-            var user = await _users.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
-            if (user is null) return NotFound();
-
-            user.IsActive = false;
-            await _users.UpdateAsync(user);
+            var ok = await _admin.SetUserActiveAsync(id, false, ct);
+            if (!ok) return NotFound();
             return NoContent();
         }
 
-        // GET /api/admin/stats/overview
-        [HttpGet("stats/overview")]
-        public async Task<ActionResult<OverviewStatsDto>> GetOverviewStats(CancellationToken ct)
+        // GET /api/admin/stats
+        [HttpGet("stats")]
+        public async Task<ActionResult<AdminStatsDto>> GetStats(CancellationToken ct)
         {
-            var totalTools = await _db.Tools.CountAsync(ct);
-            var availableTools = await _db.Tools.Where(t => t.Status == ToolStatus.Available && t.QuantityAvailable > 0).CountAsync(ct);
-            var checkedOut = await _db.BookingItems.Where(i => i.Status == BookingItemStatus.CheckedOut).SumAsync(i => (int?)i.Quantity) ?? 0;
-            var overdue = await _db.BookingItems.Where(i => i.Status == BookingItemStatus.Overdue).SumAsync(i => (int?)i.Quantity) ?? 0;
-            var totalBookings = await _db.Bookings.CountAsync(ct);
-            var activeBookings = await _db.Bookings.Where(b => b.Status == BookingStatus.Pending || b.Status == BookingStatus.Confirmed).CountAsync(ct);
-
-            return Ok(new OverviewStatsDto
-            {
-                TotalTools = totalTools,
-                AvailableTools = availableTools,
-                CheckedOutItems = checkedOut,
-                OverdueItems = overdue,
-                TotalBookings = totalBookings,
-                ActiveBookings = activeBookings
-            });
+            var dto = await _admin.GetStatsAsync(ct);
+            return Ok(dto);
         }
 
         // GET /api/admin/stats/usage?from=yyyy-MM-dd&to=yyyy-MM-dd
         [HttpGet("stats/usage")]
         public async Task<ActionResult<UsageStatsDto>> GetUsageStats([FromQuery] DateTime from, [FromQuery] DateTime to, CancellationToken ct = default)
         {
-            if (from.Date > to.Date) return BadRequest(new { message = "from must be before to" });
-            var start = from.Date; var end = to.Date.AddDays(1);
-
-            var bookings = await _db.Bookings.Where(b => b.CreatedAt >= start && b.CreatedAt < end).CountAsync(ct);
-            var itemsCheckedOut = await _db.BookingItems.Where(i => i.CheckedOutAt >= start && i.CheckedOutAt < end).SumAsync(i => (int?)i.Quantity) ?? 0;
-
-            var topTools = await _db.BookingItems
-                .Include(i => i.Tool)
-                .Where(i => i.CheckedOutAt >= start && i.CheckedOutAt < end)
-                .GroupBy(i => new { i.ToolId, i.Tool.Name })
-                .Select(g => new ToolUsageItemDto
-                {
-                    ToolId = g.Key.ToolId,
-                    ToolName = g.Key.Name,
-                    Quantity = g.Sum(i => i.Quantity)
-                })
-                .OrderByDescending(x => x.Quantity)
-                .ToListAsync(ct);
-
-            return Ok(new UsageStatsDto
-            {
-                From = start,
-                To = to.Date,
-                Bookings = bookings,
-                ItemsCheckedOut = itemsCheckedOut,
-                TopTools = topTools
-            });
+            var dto = await _admin.GetUsageAsync(from, to, ct);
+            return Ok(dto);
         }
     }
 }
