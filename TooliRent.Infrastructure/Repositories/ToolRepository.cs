@@ -35,7 +35,8 @@ namespace TooliRent.Infrastructure.Repositories
 
         public async Task<List<Tool>> GetAvailableAsync(DateTime startDate, DateTime endDate, CancellationToken ct)
         {
-            var start = startDate.Date; var end = endDate.Date;
+            var start = startDate.Date;
+            var end = endDate.Date;
 
             // A tool is available if: Status=Available and QuantityAvailable - reservedInPeriod > 0
             var tools = await _db.Tools
