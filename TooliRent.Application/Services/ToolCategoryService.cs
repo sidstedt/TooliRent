@@ -2,40 +2,37 @@ using TooliRent.Application.DTOs;
 using TooliRent.Application.Interfaces;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Interfaces;
+using AutoMapper;
 
 namespace TooliRent.Application.Services
 {
     public class ToolCategoryService : IToolCategoryService
     {
         private readonly IToolCategoryRepository _repo;
-        public ToolCategoryService(IToolCategoryRepository repo)
+        private readonly IMapper _mapper;
+        public ToolCategoryService(IToolCategoryRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         // DTO-oriented
         public async Task<List<ToolCategoryListItemDto>> GetAllListAsync(CancellationToken ct)
         {
-            var cats = await _repo.GetAllAsync(ct);
-            return cats.OrderBy(c => c.Name).Select(c => new ToolCategoryListItemDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                IsActive = c.IsActive
-            }).ToList();
+            var cat = await _repo.GetAllAsync(ct);
+            //return cat.OrderBy(c => c.Name).Select(c => new ToolCategoryListItemDto
+            //{
+            //    Id = c.Id,
+            //    Name = c.Name,
+            //    IsActive = c.IsActive
+            //}).ToList();
+            return _mapper.Map<List<ToolCategoryListItemDto>>(cat.OrderBy(c => c.Name));
         }
 
         public async Task<ToolCategoryDetailDto?> GetDetailAsync(int id, CancellationToken ct)
         {
             var c = await _repo.GetByIdAsync(id, ct);
-            if (c is null) return null;
-            return new ToolCategoryDetailDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                IsActive = c.IsActive
-            };
+            return c is null ? null : _mapper.Map<ToolCategoryDetailDto>(c);
         }
 
         public async Task<ToolCategoryDetailDto> CreateAsync(ToolCategoryCreateDto dto, CancellationToken ct)
@@ -44,20 +41,10 @@ namespace TooliRent.Application.Services
             if (existing.Any(c => string.Equals(c.Name, dto.Name, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException("Category name must be unique.");
 
-            var entity = new ToolCategory
-            {
-                Name = dto.Name.Trim(),
-                Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description!.Trim(),
-                IsActive = dto.IsActive
-            };
+            var entity = _mapper.Map<ToolCategory>(dto);
             await _repo.AddAsync(entity, ct);
-            return new ToolCategoryDetailDto
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                Description = entity.Description,
-                IsActive = entity.IsActive
-            };
+
+            return _mapper.Map<ToolCategoryDetailDto>(entity);
         }
 
         public async Task<bool> UpdateAsync(int id, ToolCategoryUpdateDto dto, CancellationToken ct)
@@ -69,18 +56,12 @@ namespace TooliRent.Application.Services
             if (cats.Any(c => c.Id != id && string.Equals(c.Name, dto.Name, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidOperationException("Category name must be unique.");
 
-            entity.Name = dto.Name.Trim();
-            entity.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description!.Trim();
-            entity.IsActive = dto.IsActive;
+            _mapper.Map(dto, entity);
             return await _repo.UpdateAsync(entity, ct);
         }
 
         public async Task<bool> DeleteCategoryAsync(int id, CancellationToken ct)
         {
-            var entity = await _repo.GetByIdAsync(id, ct);
-            if (entity is null) return false;
-            if (entity.Tools.Any())
-                throw new InvalidOperationException("Cannot delete category with tools.");
             return await _repo.DeleteAsync(id, ct);
         }
     }
