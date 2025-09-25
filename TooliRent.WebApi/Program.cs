@@ -92,12 +92,15 @@ namespace TooliRent.WebApi
             // DI: repositories and services
             builder.Services.AddScoped<IToolRepository, ToolRepository>();
             builder.Services.AddScoped<IToolService, ToolService>();
+
             builder.Services.AddScoped<IToolCategoryRepository, ToolCategoryRepository>();
             builder.Services.AddScoped<IToolCategoryService, ToolCategoryService>();
+
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
             builder.Services.AddScoped<IBookingService, BookingService>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IUserAdminService, UserAdminService>();
+
+            builder.Services.AddScoped<IAdminService, AdminService>();
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
             var app = builder.Build();
 

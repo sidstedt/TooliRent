@@ -19,7 +19,7 @@ namespace TooliRent.Infrastructure.Repositories
 
         public async Task<List<Booking>> GetByUserAsync(Guid userId, CancellationToken ct)
         {
-            return await _db.Bookings.AsNoTracking()
+            return await _db.Bookings
                 .Where(b => b.UserId == userId)
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync(ct);
@@ -27,12 +27,12 @@ namespace TooliRent.Infrastructure.Repositories
 
         public async Task<Booking?> GetByIdAsync(int id, CancellationToken ct)
         {
-            return await _db.Bookings.AsNoTracking().FirstOrDefaultAsync(b => b.Id == id, ct);
+            return await _db.Bookings.FirstOrDefaultAsync(b => b.Id == id, ct);
         }
 
         public async Task<Booking?> GetWithItemsAsync(int id, CancellationToken ct)
         {
-            return await _db.Bookings.AsNoTracking()
+            return await _db.Bookings
                 .Include(b => b.Items).ThenInclude(i => i.Tool)
                 .FirstOrDefaultAsync(b => b.Id == id, ct);
         }

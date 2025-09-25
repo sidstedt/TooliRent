@@ -1,17 +1,19 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace TooliRent.Application.DTOs
 {
-    public sealed class OverviewStatsDto
+    public class AdminStatsDto
     {
         public int TotalTools { get; set; }
-        public int AvailableTools { get; set; }
-        public int CheckedOutItems { get; set; }
-        public int OverdueItems { get; set; }
         public int TotalBookings { get; set; }
         public int ActiveBookings { get; set; }
         public int Members { get; set; }
+        public int? CheckedOutItems { get; set; }
+        public int? OverdueItems { get; set; }
     }
 
     public sealed class ToolUsageItemDto

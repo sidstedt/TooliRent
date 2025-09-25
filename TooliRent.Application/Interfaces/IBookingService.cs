@@ -1,30 +1,16 @@
-﻿using TooliRent.Domain.Entities;
-using TooliRent.Domain.Enums;
+﻿using TooliRent.Application.DTOs;
 
 namespace TooliRent.Application.Interfaces
 {
     public interface IBookingService
     {
-        // Läs
-        Task<Booking?> GetByIdAsync(int id, CancellationToken ct);
-        Task<Booking?> GetWithItemsAsync(int id, CancellationToken ct);
-        Task<List<Booking>> GetByUserAsync(Guid userId, CancellationToken ct);
-
-        // Skapa/uppdatera
-        Task AddAsync(Booking booking, CancellationToken ct);
-        Task UpdateAsync(Booking booking, CancellationToken ct);
-
-        // Avboka / status
-        Task UpdateStatusAsync(int bookingId, BookingStatus status, CancellationToken ct);
-
-        // Tillgänglighet
-        Task<int> GetReservedQuantityAsync(int toolId, DateTime startDate, DateTime endDate, CancellationToken ct);
-
-        // Utlämning / återlämning
-        Task<BookingItem?> GetItemAsync(int bookingItemId, CancellationToken ct);
-        Task UpdateItemAsync(BookingItem item, CancellationToken ct);
-
-        // Försenade
-        Task<int> MarkOverdueAsync(DateTime nowUtc, CancellationToken ct);
+        // DTO-orienterade operationer (controller-vänliga)
+        Task<List<BookingListItemDto>> GetUserListAsync(Guid userId, CancellationToken ct);
+        Task<BookingDetailDto?> GetDetailAsync(int id, Guid userId, CancellationToken ct);
+        Task<int> CreateAsync(Guid userId, CreateBookingDto dto, CancellationToken ct);
+        Task<bool> CancelAsync(int id, Guid userId, CancellationToken ct);
+        Task<bool> CheckoutAsync(int id, CancellationToken ct);
+        Task<bool> ReturnAsync(int id, CancellationToken ct);
+        Task<int> ScanOverdueAsync(DateTime nowUtc, CancellationToken ct);
     }
 }
