@@ -11,6 +11,7 @@ using TooliRent.Application.Interfaces;
 using TooliRent.Application.Services;
 using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Repositories;
+using TooliRent.Application.Mapping;
 
 namespace TooliRent.WebApi
 {
@@ -86,6 +87,10 @@ namespace TooliRent.WebApi
                     };
                 });
             builder.Services.AddAuthorization();
+
+            // AutoMapper
+            builder.Services.AddAutoMapper(cfg => { }, typeof(ToolProfile));
+            builder.Services.AddAutoMapper(cfg => { }, typeof(ToolCategoryProfile));
 
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
