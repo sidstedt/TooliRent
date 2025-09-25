@@ -1,3 +1,4 @@
+using AutoMapper;
 using TooliRent.Application.DTOs;
 using TooliRent.Application.Interfaces;
 using TooliRent.Domain.Entities;
@@ -10,46 +11,26 @@ namespace TooliRent.Application.Services
     {
         private readonly IBookingRepository _bookings;
         private readonly IToolRepository _tools;
-        public BookingService(IBookingRepository bookings, IToolRepository tools)
+        private readonly IMapper _mapper;
+        public BookingService(IBookingRepository bookings, IToolRepository tools, IMapper mapper)
         {
             _bookings = bookings;
             _tools = tools;
+            _mapper = mapper;
         }
 
         // DTO methods
-        public async Task<List<BookingListItemDto>> GetUserListAsync(Guid userId, CancellationToken ct)
+        public async Task<List<BookingListItemDto>?> GetUserListAsync(Guid userId, CancellationToken ct)
         {
             var list = await _bookings.GetByUserAsync(userId, ct);
-            return list.Select(b => new BookingListItemDto
-            {
-                Id = b.Id,
-                StartDate = b.StartDate,
-                EndDate = b.EndDate,
-                Status = (int)b.Status,
-                CreatedAt = b.CreatedAt,
-                ItemCount = b.Items.Count
-            }).ToList();
+            return list is null ? null : _mapper.Map<List<BookingListItemDto>>(list);
         }
 
         public async Task<BookingDetailDto?> GetDetailAsync(int id, Guid userId, CancellationToken ct)
         {
             var booking = await _bookings.GetWithItemsAsync(id, ct);
             if (booking is null || booking.UserId != userId) return null;
-            return new BookingDetailDto
-            {
-                Id = booking.Id,
-                StartDate = booking.StartDate,
-                EndDate = booking.EndDate,
-                Status = (int)booking.Status,
-                CreatedAt = booking.CreatedAt,
-                Items = booking.Items.Select(i => new BookingItemDto
-                {
-                    ToolId = i.ToolId,
-                    ToolName = i.Tool.Name,
-                    Quantity = i.Quantity,
-                    Status = (int)i.Status
-                }).ToList()
-            };
+            return _mapper.Map<BookingDetailDto>(booking);
         }
 
         public async Task<int> CreateAsync(Guid userId, CreateBookingDto dto, CancellationToken ct)
@@ -72,19 +53,9 @@ namespace TooliRent.Application.Services
             }
 
             // Create booking and items
-            var booking = new Booking
-            {
-                UserId = userId,
-                StartDate = dto.StartDate.Date,
-                EndDate = dto.EndDate.Date,
-                Status = BookingStatus.Pending,
-                Items = dto.Items.Select(i => new BookingItem
-                {
-                    ToolId = i.ToolId,
-                    Quantity = i.Quantity,
-                    Status = BookingItemStatus.Reserved
-                }).ToList()
-            };
+            var booking = _mapper.Map<Booking>(dto);
+            booking.UserId = userId;
+
             await _bookings.AddAsync(booking, ct);
 
             // Decrease available quantities
