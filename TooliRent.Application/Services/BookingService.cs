@@ -20,10 +20,10 @@ namespace TooliRent.Application.Services
         }
 
         // DTO methods
-        public async Task<List<BookingListItemDto>?> GetUserListAsync(Guid userId, CancellationToken ct)
+        public async Task<List<BookingListItemDto>> GetUserListAsync(Guid userId, CancellationToken ct)
         {
             var list = await _bookings.GetByUserAsync(userId, ct);
-            return list is null ? null : _mapper.Map<List<BookingListItemDto>>(list);
+            return _mapper.Map<List<BookingListItemDto>>(list ?? new List<Booking>());
         }
 
         public async Task<BookingDetailDto?> GetDetailAsync(int id, Guid userId, CancellationToken ct)
@@ -73,8 +73,17 @@ namespace TooliRent.Application.Services
         {
             var booking = await _bookings.GetWithItemsAsync(id, ct);
             if (booking is null || booking.UserId != userId) return false;
+
             if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
                 throw new InvalidOperationException("Booking cannot be cancelled.");
+
+            var anyProcessed = booking.Items.Any(i =>
+                i.Status == BookingItemStatus.CheckedOut ||
+                i.Status == BookingItemStatus.Returned ||
+                i.Status == BookingItemStatus.Overdue);
+
+            if (booking.Status == BookingStatus.Confirmed || anyProcessed)
+                throw new InvalidOperationException("Booking cannot be cancelled after checkout.");
 
             // Restore quantities only for reserved items not yet checked out
             foreach (var item in booking.Items.Where(i => i.Status == BookingItemStatus.Reserved))
@@ -114,9 +123,19 @@ namespace TooliRent.Application.Services
             var booking = await _bookings.GetWithItemsAsync(id, ct);
             if (booking is null) return false;
 
-            foreach (var item in booking.Items.Where(i => i.Status == BookingItemStatus.CheckedOut || i.Status == BookingItemStatus.Overdue))
+            if (booking.Status == BookingStatus.Completed || booking.Status == BookingStatus.Cancelled)
+                return false;
+
+            var toReturn = booking.Items
+                .Where(i => i.Status == BookingItemStatus.CheckedOut ||
+                i.Status == BookingItemStatus.Overdue).ToList();
+
+            if (toReturn.Count == 0)
+                throw new InvalidOperationException("booking cannot be returned before checkout.");
+
+            foreach (var item in toReturn)
             {
-                var tool = booking.Items.First(i => i.Id == item.Id).Tool;
+                var tool = item.Tool;
                 if (tool != null)
                 {
                     tool.QuantityAvailable += item.Quantity;

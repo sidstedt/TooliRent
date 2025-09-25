@@ -48,7 +48,7 @@ namespace TooliRent.WebApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id }, new { id });
         }
 
-        // DELETE /api/bookings/{id}
+        // Cancel /api/bookings/{id}
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Cancel([FromRoute] int id, CancellationToken ct)
         {
