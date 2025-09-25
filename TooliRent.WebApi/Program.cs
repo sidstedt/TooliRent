@@ -12,6 +12,10 @@ using TooliRent.Application.Services;
 using TooliRent.Domain.Interfaces;
 using TooliRent.Infrastructure.Repositories;
 using TooliRent.Application.Mapping;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using TooliRent.Application.DTOs;
+using TooliRent.Application.Validation;
 
 namespace TooliRent.WebApi
 {
@@ -107,6 +111,10 @@ namespace TooliRent.WebApi
 
             builder.Services.AddScoped<IAdminService, AdminService>();
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+
+            // Fluent validator
+            builder.Services.AddFluentValidationAutoValidation(o => o.DisableDataAnnotationsValidation = true);
+            builder.Services.AddValidatorsFromAssembly(typeof(Application.Validation.BookingItemCreateDtoValidator).Assembly);
 
             var app = builder.Build();
 
