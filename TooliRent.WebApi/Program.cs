@@ -91,6 +91,7 @@ namespace TooliRent.WebApi
             // AutoMapper
             builder.Services.AddAutoMapper(cfg => { }, typeof(ToolProfile));
             builder.Services.AddAutoMapper(cfg => { }, typeof(ToolCategoryProfile));
+            builder.Services.AddAutoMapper(cfg => { }, typeof(BookingProfile));
 
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
