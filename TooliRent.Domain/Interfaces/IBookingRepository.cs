@@ -26,5 +26,6 @@ namespace TooliRent.Domain.Interfaces
 
         // Försenade
         Task<int> MarkOverdueAsync(DateTime nowUtc, CancellationToken ct);
+        Task<List<Booking>> GetAllAsync(CancellationToken ct);
     }
 }

@@ -4,6 +4,7 @@ using TooliRent.Application.Interfaces;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Enums;
 using TooliRent.Domain.Interfaces;
+using TooliRent.Domain.Queries;
 
 namespace TooliRent.Application.Services
 {
@@ -19,17 +20,29 @@ namespace TooliRent.Application.Services
             _mapper = mapper;
         }
 
-        // DTO methods
         public async Task<List<BookingListItemDto>> GetUserListAsync(Guid userId, CancellationToken ct)
         {
             var list = await _bookings.GetByUserAsync(userId, ct);
             return _mapper.Map<List<BookingListItemDto>>(list ?? new List<Booking>());
         }
 
-        public async Task<BookingDetailDto?> GetDetailAsync(int id, Guid userId, CancellationToken ct)
+        public async Task<List<BookingListItemDto>> GetAllAsync(int page, int pageSize, CancellationToken ct)
+        {
+            if (page <= 0) page = 1;
+            if (pageSize <= 0 || pageSize > 100) pageSize = 10;
+            var allBookings = await _bookings.GetAllAsync(ct);
+            var paged = allBookings
+                .OrderByDescending(b => b.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            return _mapper.Map<List<BookingListItemDto>>(paged);
+        }
+
+        public async Task<BookingDetailDto?> GetDetailAsync(int id, Guid? userId, CancellationToken ct)
         {
             var booking = await _bookings.GetWithItemsAsync(id, ct);
-            if (booking is null || booking.UserId != userId) return null;
+            if (booking is null || (userId.HasValue && booking.UserId != userId.Value)) return null;
             return _mapper.Map<BookingDetailDto>(booking);
         }
 
@@ -40,7 +53,7 @@ namespace TooliRent.Application.Services
 
             // Validate tools and availability
             var toolIds = dto.Items.Select(i => i.ToolId).Distinct().ToArray();
-            var tools = await _tools.SearchAsync(new Domain.Queries.ToolSearchCriteria(), ct);
+            var tools = await _tools.SearchAsync(new ToolSearchCriteria(), ct);
             tools = tools.Where(t => toolIds.Contains(t.Id)).ToList();
             if (tools.Count != toolIds.Length)
                 throw new InvalidOperationException("One or more tools not found.");

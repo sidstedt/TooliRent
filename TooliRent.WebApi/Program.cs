@@ -1,22 +1,20 @@
-using Microsoft.IdentityModel.Tokens;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using TooliRent.Domain.Entities;
-using TooliRent.Infrastructure.Persistence;
-using TooliRent.WebApi.Auth;
-using TooliRent.Application.Interfaces;
-using TooliRent.Application.Services;
-using TooliRent.Domain.Interfaces;
-using TooliRent.Infrastructure.Repositories;
-using TooliRent.Application.Mapping;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-using TooliRent.Application.DTOs;
-using TooliRent.Application.Validation;
 using System.Text.Json.Serialization;
+using TooliRent.Application.Interfaces;
+using TooliRent.Application.Mapping;
+using TooliRent.Application.Services;
+using TooliRent.Domain.Entities;
+using TooliRent.Domain.Interfaces;
+using TooliRent.Infrastructure.Persistence;
+using TooliRent.Infrastructure.Repositories;
+using TooliRent.WebApi.Auth;
 
 namespace TooliRent.WebApi
 {
@@ -98,9 +96,7 @@ namespace TooliRent.WebApi
             builder.Services.AddAuthorization();
 
             // AutoMapper
-            builder.Services.AddAutoMapper(cfg => { }, typeof(ToolProfile));
-            builder.Services.AddAutoMapper(cfg => { }, typeof(ToolCategoryProfile));
-            builder.Services.AddAutoMapper(cfg => { }, typeof(BookingProfile));
+            builder.Services.AddAutoMapper(cfg => { }, typeof(Application.Mapping.ToolProfile).Assembly);
 
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
