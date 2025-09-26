@@ -19,13 +19,31 @@ namespace TooliRent.WebApi.Controllers
 
         private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        // GET /api/bookings (own bookings)
-        [HttpGet]
+        // GET /api/bookings/mine
+        [HttpGet("mine")]
         public async Task<ActionResult<IEnumerable<BookingListItemDto>>> GetMine(CancellationToken ct)
         {
             var userId = GetUserId();
             var items = await _bookings.GetUserListAsync(userId, ct);
             return Ok(items);
+        }
+
+        [HttpGet("get-all-admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<BookingListItemDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
+        {
+            var items = await _bookings.GetAllAsync(page, pageSize, ct);
+            return Ok(items);
+        }
+
+        // GET api/bookings/{id} (admin version)
+        [HttpGet("{id:int}/admin")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<BookingDetailDto>> GetByIdAdmin([FromRoute] int id, CancellationToken ct)
+        {
+            var dto = await _bookings.GetDetailAsync(id, null, ct);
+            if (dto is null) return NotFound();
+            return Ok(dto);
         }
 
         // GET /api/bookings/{id}

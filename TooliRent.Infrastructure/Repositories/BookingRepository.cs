@@ -25,6 +25,14 @@ namespace TooliRent.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
+        public async Task<List<Booking>> GetAllAsync(CancellationToken ct)
+        {
+            return await _db.Bookings
+                .Include(b => b.Items)
+                .ThenInclude(i => i.Tool)
+                .ToListAsync(ct);
+        }
+
         public async Task<Booking?> GetByIdAsync(int id, CancellationToken ct)
         {
             return await _db.Bookings.FirstOrDefaultAsync(b => b.Id == id, ct);
