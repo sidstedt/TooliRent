@@ -167,8 +167,10 @@ Access token: 15 min. Refresh token: 7 dagar.
 ### Bookings
 | Metod | Route | Auth | Beskrivning |
 |-------|-------|------|-------------|
-| GET | /api/bookings | Member/Admin | Egna bokningar |
+| GET | /api/bookings/mine | Member/Admin | Egna bokningar |
 | GET | /api/bookings/{id} | Member/Admin | Egen bokning |
+| GET | /api/bookings/get-all-admin | Admin | Alla bokningar |
+| GET | /api/bookings/{id}/admin | Admin | En bokning |
 | POST | /api/bookings | Member/Admin | Skapa bokning |
 | DELETE | /api/bookings/{id} | Member/Admin | Avboka (om ej hanterad) |
 | POST | /api/bookings/{id}/checkout | Admin | Checka ut |
