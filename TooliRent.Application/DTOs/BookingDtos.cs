@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using TooliRent.Domain.Enums;
 
 namespace TooliRent.Application.DTOs
 {
@@ -37,7 +38,7 @@ namespace TooliRent.Application.DTOs
         public int ToolId { get; set; }
         public string ToolName { get; set; } = string.Empty;
         public int Quantity { get; set; }
-        public int Status { get; set; }
+        public BookingItemStatus Status { get; set; }
     }
 
     public sealed class BookingDetailDto

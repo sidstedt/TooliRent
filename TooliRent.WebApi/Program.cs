@@ -16,6 +16,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using TooliRent.Application.DTOs;
 using TooliRent.Application.Validation;
+using System.Text.Json.Serialization;
 
 namespace TooliRent.WebApi
 {
@@ -30,7 +31,11 @@ namespace TooliRent.WebApi
                 options.UseSqlServer(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(o =>
+                {
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
             
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(opt =>
