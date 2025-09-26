@@ -1,5 +1,5 @@
-using System;
 using System.ComponentModel.DataAnnotations;
+using TooliRent.Domain.Enums;
 
 namespace TooliRent.Application.DTOs
 {
@@ -11,7 +11,7 @@ namespace TooliRent.Application.DTOs
         public int QuantityAvailable { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
-        public int Status { get; set; }
+        public ToolStatus Status { get; set; }
     }
 
     public sealed class ToolDetailDto
@@ -23,7 +23,7 @@ namespace TooliRent.Application.DTOs
         public int QuantityAvailable { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
-        public int Status { get; set; }
+        public ToolStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -53,7 +53,6 @@ namespace TooliRent.Application.DTOs
         public int QuantityAvailable { get; set; }
         [Range(1, int.MaxValue)]
         public int CategoryId { get; set; }
-        [Range(0, 4)] // ToolStatus enum range
-        public int Status { get; set; }
+        public ToolStatus Status { get; set; }
     }
 }
