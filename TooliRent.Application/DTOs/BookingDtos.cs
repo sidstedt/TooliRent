@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using TooliRent.Domain.Enums;
 
@@ -28,7 +26,7 @@ namespace TooliRent.Application.DTOs
         public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int Status { get; set; }
+        public BookingStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public int ItemCount { get; set; }
     }
@@ -46,7 +44,7 @@ namespace TooliRent.Application.DTOs
         public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int Status { get; set; }
+        public BookingStatus Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<BookingItemDto> Items { get; set; } = new();
     }

@@ -4,6 +4,7 @@ using TooliRent.Application.Interfaces;
 using TooliRent.Domain.Entities;
 using TooliRent.Domain.Enums;
 using TooliRent.Domain.Interfaces;
+using TooliRent.Domain.Queries;
 
 namespace TooliRent.Application.Services
 {
@@ -52,7 +53,7 @@ namespace TooliRent.Application.Services
 
             // Validate tools and availability
             var toolIds = dto.Items.Select(i => i.ToolId).Distinct().ToArray();
-            var tools = await _tools.SearchAsync(new Domain.Queries.ToolSearchCriteria(), ct);
+            var tools = await _tools.SearchAsync(new ToolSearchCriteria(), ct);
             tools = tools.Where(t => toolIds.Contains(t.Id)).ToList();
             if (tools.Count != toolIds.Length)
                 throw new InvalidOperationException("One or more tools not found.");

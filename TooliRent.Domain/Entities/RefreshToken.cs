@@ -1,5 +1,3 @@
-using System;
-
 namespace TooliRent.Domain.Entities
 {
     public class RefreshToken
