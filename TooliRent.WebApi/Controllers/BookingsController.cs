@@ -27,7 +27,7 @@ namespace TooliRent.WebApi.Controllers
             var items = await _bookings.GetUserListAsync(userId, ct);
             return Ok(items);
         }
-
+        // GET /api/bookings/get-all-admin
         [HttpGet("get-all-admin")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<BookingListItemDto>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, CancellationToken ct = default)
@@ -36,7 +36,7 @@ namespace TooliRent.WebApi.Controllers
             return Ok(items);
         }
 
-        // GET api/bookings/{id} (admin version)
+        // GET /api/bookings/{id}/admin
         [HttpGet("{id:int}/admin")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BookingDetailDto>> GetByIdAdmin([FromRoute] int id, CancellationToken ct)
